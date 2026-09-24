@@ -58,3 +58,9 @@ CIRCUITPY/
 └── lib/
     ├── kmk/                          # Complete KMK firmware library
     └── adafruit_displayio_ssd1306.mpy # SSD1306 driver module
+## Photos
+<img width="392" height="312" alt="Screenshot 2026-09-25 001647" src="https://github.com/user-attachments/assets/35000392-46cb-4fbb-9959-5f81eb206cb1" />
+<img width="720" height="497" alt="Screenshot 2026-09-25 000948" src="https://github.com/user-attachments/assets/b1b19676-b258-4732-a303-897f520b90a5" />
+<img width="450" height="367" alt="Screenshot 2026-09-23 165755" src="https://github.com/user-attachments/assets/d7a5a714-53e6-45a8-9637-3aefb1ef03c9" />
+<img width="702" height="786" alt="Screenshot 2026-09-19 183047" src="https://github.com/user-attachments/assets/6faa5939-02d9-4ed1-9614-aad9d720ba0a" />
+
