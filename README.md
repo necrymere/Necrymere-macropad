@@ -1,23 +1,60 @@
+#  MintPad
 
-# Necry's Hackpad
-A custom 9-key macropad built with Hack Club Blueprint!
+A clean, customizable 4-mode macropad driven by **KMK Firmware** and **CircuitPython 9.x**. Designed around a Seeed Studio XIAO microcontroller, **MintPad** pairs a 128x32 monochrome OLED screen with a rotary encoder for effortless layer toggling and real-time visual feedback.
 
-## Features
-- 9 keys in a 3x3 matrix
-- SK6812MINI RGB LEDs (one per key)
-- 0.91" OLED display with custom ASCII art reactions
-- EC11 rotary encoder for volume control
-- 2 layers: Apps launcher and Media/Productivity
-- Wireless-ready design (nRF52840 upgrade path)
+---
 
-## Firmware
-KMK on CircuitPython
+##  Features
 
-## Hardware
-- XIAO RP2040
-- MX switches
-- SK6812MINI-E LEDs
-- SSD1306 OLED
-- EC11 encoder
-- <img width="751" height="798" alt="Screenshot 2026-03-31 225833" src="https://github.com/user-attachments/assets/3178b922-59c5-47ca-854d-6f83bef0c2ff" />
-<img width="982" height="489" alt="Screenshot 2026-03-31 225849" src="https://github.com/user-attachments/assets/3c26cfde-5ab2-465e-a24d-e14085bfd939" />
+* **4 Dedicated Workspaces:** Instantly switch between media controls, editing shortcuts, productivity tools, and device settings.
+* **Dynamic OLED Display:** 1-bit typography graphics (`mode0.bmp` – `mode3.bmp`) update instantly on layer changes.
+* **Rotary Encoder Integration:** Smooth, responsive control for volume, timeline scrubbing, or page scrolling with an integrated push-button switch.
+* **On-the-Fly Configuration:** Powered by CircuitPython—tweak keymaps or swap graphics directly via USB without compiling code.
+
+---
+
+## 🔌 Hardware & Pinout Mapping
+
+### Recommended Components
+* **Microcontroller:** Seeed Studio XIAO (RP2040, SAMD21, or ESP32-S3)
+* **Display:** 0.91" I2C OLED (SSD1306 driver, 128x32 resolution)
+* **Inputs:** Mechanical key switches + Rotary encoder with push button
+
+### Default Wiring Scheme
+
+| Component | Signal / Line | Seeed XIAO Pin |
+| :--- | :--- | :--- |
+| **OLED Screen** | SDA | `SDA` / `D4` |
+| **OLED Screen** | SCL | `SCL` / `D5` |
+| **Rotary Encoder** | Phase A | `D0` |
+| **Rotary Encoder** | Phase B | `D1` |
+| **Rotary Encoder** | Push Switch | `D2` |
+| **Key Matrix / Switches** | Direct Inputs | `D3`, `D6`, `D7`, `D8`... |
+
+---
+
+##  Layer Breakdown
+
+| Mode | Name | OLED Asset | Encoder Function | Primary Focus |
+| :---: | :--- | :---: | :--- | :--- |
+| **0** | **Essentials** | `mode0.bmp` | Master Volume | Media playback, track skipping, system volume |
+| **1** | **Editing & Navigation** | `mode1.bmp` | Timeline Scrub | Cut, copy, paste, undo, redo, selection |
+| **2** | **Productivity** | `mode2.bmp` | Page Scroll | Workspace switching, app launchers, browser tabs |
+| **3** | **Settings** | `mode3.bmp` | Utility / Adjust | Display toggles, board status, hardware utilities |
+
+---
+
+##  Directory Layout
+
+Organize your `CIRCUITPY` drive before booting:
+
+```text
+CIRCUITPY/
+├── code.py                           # Main KMK keymap & display engine
+├── mode0.bmp                         # 128x32 monochrome graphic for Mode 0
+├── mode1.bmp                         # 128x32 monochrome graphic for Mode 1
+├── mode2.bmp                         # 128x32 monochrome graphic for Mode 2
+├── mode3.bmp                         # 128x32 monochrome graphic for Mode 3
+└── lib/
+    ├── kmk/                          # Complete KMK firmware library
+    └── adafruit_displayio_ssd1306.mpy # SSD1306 driver module
