@@ -1,66 +1,61 @@
 #  MintPad
 
-A clean, customizable 4-mode macropad driven by **KMK Firmware** and **CircuitPython 9.x**. Designed around a Seeed Studio XIAO microcontroller, **MintPad** pairs a 128x32 monochrome OLED screen with a rotary encoder for effortless layer toggling and real-time visual feedback.
+ A 9 key macropad with a rotary encoder, backlight and OLED display. It uses KMK firmware.
 
----
+ I made it mostly because I am a multitasker and I think it will help me. Also made it really modular cause I do a lot of things and I love flexibility.
 
-##  Features
 
-* **4 Dedicated Workspaces:** Instantly switch between media controls, editing shortcuts, productivity tools, and device settings.
-* **Dynamic OLED Display:** 1-bit typography graphics (`mode0.bmp` – `mode3.bmp`) update instantly on layer changes.
-* **Rotary Encoder Integration:** Smooth, responsive control for volume, timeline scrubbing, or page scrolling with an integrated push-button switch.
-* **On-the-Fly Configuration:** Powered by CircuitPython—tweak keymaps or swap graphics directly via USB without compiling code.
+ ## Features:
 
----
+ -Blank case with an engraving on the backside to leave space for me to decorate the rest however I feel like in the moment.
+ -OLED display for showing what mode it is in/silly things that I have yet to think about
+ -EC11 Rotary encoder for volume control(and once pressed for changing the modes)
+ -9 LEDs, one for each key to let me customise the colour of it based on my vibe(curently my setup is mint green so I programed it that way)
+ -9 keys
+ - 4 modes at the moment of writing this(probably will add more and hopefully adjust this count too)
 
-## 🔌 Hardware & Pinout Mapping
+ ## CAD Model:
+ Everything should fit with screws(not sure what size but I will figure it out when I get it and go to the hardware store to buy some) or I will just glue the two parts but it is not the best option.
 
-### Recommended Components
-* **Microcontroller:** Seeed Studio XIAO (RP2040, SAMD21, or ESP32-S3)
-* **Display:** 0.91" I2C OLED (SSD1306 driver, 128x32 resolution)
-* **Inputs:** Mechanical key switches + Rotary encoder with push button
+ The case sits at an angle which was very important to me. I hope it does not mess anything up as I spent a lot on it.
 
-### Default Wiring Scheme
+![image of the CAD model I spent 10 minutes importing](<Screenshot 2026-09-23 165755.png>)
 
-| Component | Signal / Line | Seeed XIAO Pin |
-| :--- | :--- | :--- |
-| **OLED Screen** | SDA | `SDA` / `D4` |
-| **OLED Screen** | SCL | `SCL` / `D5` |
-| **Rotary Encoder** | Phase A | `D0` |
-| **Rotary Encoder** | Phase B | `D1` |
-| **Rotary Encoder** | Push Switch | `D2` |
-| **Key Matrix / Switches** | Direct Inputs | `D3`, `D6`, `D7`, `D8`... |
+ Made in Tinkercad(which I will hopefully not touch with a 10 meter pole for a while) cause my laptop decided that Fusion360 isn't necesarry and I am demanding too much.
 
----
+ ## Schematic:
+ This is the schematic which didn't come with too may issues unlike last time I tried(and failed) to build for Hackpad.
 
-##  Layer Breakdown
+![schematic](<Screenshot 2026-09-25 000948.png>)
 
-| Mode | Name | OLED Asset | Encoder Function | Primary Focus |
-| :---: | :--- | :---: | :--- | :--- |
-| **0** | **Essentials** | `mode0.bmp` | Master Volume | Media playback, track skipping, system volume |
-| **1** | **Editing & Navigation** | `mode1.bmp` | Timeline Scrub | Cut, copy, paste, undo, redo, selection |
-| **2** | **Productivity** | `mode2.bmp` | Page Scroll | Workspace switching, app launchers, browser tabs |
-| **3** | **Settings** | `mode3.bmp` | Utility / Adjust | Display toggles, board status, hardware utilities |
+## PCB:
+With the PCB the issue was spacing the keycaps mostly and almost getting the direction of the OLED wrong but the rest was fine honestly(again way better than last time).
 
----
+NOTE: Just noticed the OLED is wrong in this image too. I will change it when I can.
 
-##  Directory Layout
+![PCB](<Screenshot 2026-09-19 183047.png>)
 
-Organize your `CIRCUITPY` drive before booting:
+## Frimware overview:
+It uses KMK for everything.
 
-```text
-CIRCUITPY/
-├── code.py                           # Main KMK keymap & display engine
-├── mode0.bmp                         # 128x32 monochrome graphic for Mode 0
-├── mode1.bmp                         # 128x32 monochrome graphic for Mode 1
-├── mode2.bmp                         # 128x32 monochrome graphic for Mode 2
-├── mode3.bmp                         # 128x32 monochrome graphic for Mode 3
-└── lib/
-    ├── kmk/                          # Complete KMK firmware library
-    └── adafruit_displayio_ssd1306.mpy # SSD1306 driver module
-## Photos
-<img width="392" height="312" alt="Screenshot 2026-09-25 001647" src="https://github.com/user-attachments/assets/35000392-46cb-4fbb-9959-5f81eb206cb1" />
-<img width="720" height="497" alt="Screenshot 2026-09-25 000948" src="https://github.com/user-attachments/assets/b1b19676-b258-4732-a303-897f520b90a5" />
-<img width="450" height="367" alt="Screenshot 2026-09-23 165755" src="https://github.com/user-attachments/assets/d7a5a714-53e6-45a8-9637-3aefb1ef03c9" />
-<img width="702" height="786" alt="Screenshot 2026-09-19 183047" src="https://github.com/user-attachments/assets/6faa5939-02d9-4ed1-9614-aad9d720ba0a" />
+It has a rotary encoder that controls the volume and mode as stated before, 9 keys with shortcuts depending on the mode and an OLED for showing the current mode which I will have to spice up ASAP.
+
+## BOM:
+List of part:
+
+Seeed Studio XIAO Microcontroller
+0.91" 128x32 I2C OLED Display (SSD1306)
+EC11 Rotary Encoder with Push Button
+Mechanical Key Switches (x9)
+1U Keycaps (x9)
+Custom PCB
+3D Printed case
+1N4148 Signal Diodes (x10)
+LEDs (x10)
+
+## Extra stuff:
+I just had a heart attack cause my firmware was from one year ago, all of it but luckly I think I found the right one. Fingers crossed.
+This was really fun(excluding the loosing the firmare at midnight) anyways hope you have a great day/evening/night!
+
+
 

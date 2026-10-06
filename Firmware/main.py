@@ -2,125 +2,141 @@ import board
 import busio
 import displayio
 import adafruit_displayio_ssd1306
-
 from kmk.kmk_keyboard import KMKKeyboard
+from kmk.scanner import MatrixScanner, DIODE_COL2ROW
 from kmk.keys import KC
-from kmk.modules.layers import Layers
 from kmk.modules.encoder import EncoderHandler
+from kmk.extensions.rgb import RGB, AnimationModes
 
+# --- 1. DISPLAY SETUP ---
+displayio.release_displays()
+i2c = busio.I2C(board.D10, board.D9)
+display_bus = displayio.I2CDisplay(i2c, device_address=0x3C)
+
+WIDTH = 128
+HEIGHT = 32
+display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=WIDTH, height=HEIGHT)
+
+splash = displayio.Group()
+display.show(splash)
+
+# --- 2. KEYBOARD & MODULE SETUP ---
 keyboard = KMKKeyboard()
 
-# ==========================================
-# 1. MODULES & HARDWARE SETUP
-# ==========================================
-layers = Layers()
 encoder_handler = EncoderHandler()
-keyboard.modules = [layers, encoder_handler]
+keyboard.modules.append(encoder_handler)
 
-# Pin Assignments (Seeed XIAO)
-keyboard.pins = [board.D3, board.D6, board.D7, board.D8]
-
-# Rotary Encoder (Phase A: D0, Phase B: D1, Push Switch: D2)
-encoder_handler.pins = ((board.D0, board.D1, board.D2, False),)
-
-# ==========================================
-# 2. OLED DISPLAY ENGINE (SSD1306 - 128x32)
-# ==========================================
-displayio.release_displays()
-i2c = busio.I2C(board.SCL, board.SDA)
-display_bus = displayio.I2CDisplay(i2c, device_address=0x3C)
-display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=128, height=32)
-
-current_layer = -1
-
-def update_display(layer_idx):
-    global current_layer
-    if layer_idx == current_layer:
-        return
-    current_layer = layer_idx
-    
-    bmp_filename = f"mode{layer_idx}.bmp"
-    try:
-        bitmap = displayio.OnDiskBitmap(bmp_filename)
-        tile_grid = displayio.TileGrid(bitmap, pixel_shader=bitmap.pixel_shader)
-        group = displayio.Group()
-        group.append(tile_grid)
-        display.root_group = group
-    except Exception as e:
-        print(f"Failed to load {bmp_filename}: {e}")
-
-# Load initial Mode 0 image on boot
-update_display(0)
-
-# Layer observer to swap BMP assets automatically on layer changes
-class OLEDLayerSync:
-    def during_bootup(self, keyboard):
-        pass
-    def before_matrix_scan(self, keyboard):
-        pass
-    def after_matrix_scan(self, keyboard):
-        pass
-    def before_hid_send(self, keyboard):
-        pass
-    def after_hid_send(self, keyboard):
-        if keyboard.active_layers:
-            update_display(keyboard.active_layers[0])
-
-keyboard.modules.append(OLEDLayerSync())
-
-# ==========================================
-# 3. ENCODER MAP (CW, CCW, Push Button)
-# ==========================================
-encoder_handler.map = (
-    # Mode 0: Essentials (Volume Up, Volume Down, Mute)
-    ((KC.AUDIO_VOL_UP, KC.AUDIO_VOL_DOWN, KC.AUDIO_MUTE),),
-    
-    # Mode 1: Editing (Scrub Right, Scrub Left, Undo)
-    ((KC.RIGHT, KC.LEFT, KC.LCTRL(KC.Z)),),
-    
-    # Mode 2: Productivity (Scroll Down, Scroll Up, Next Tab)
-    ((KC.PGDN, KC.PGUP, KC.LCTRL(KC.TAB)),),
-    
-    # Mode 3: Settings (Brightness Up, Brightness Down, Return to Mode 0)
-    ((KC.BRIGHTNESS_UP, KC.BRIGHTNESS_DOWN, KC.TO(0)),),
+encoder_handler.pins = (
+    (board.D6, board.D7, None),
 )
 
-# ==========================================
-# 4. KEYMAP (4 Modes)
-# ==========================================
+rgb_ext = RGB(
+    pixel_pin=board.D8,
+    num_pixels=9,
+    val_limit=100,
+    val_default=45,
+    animation_mode=AnimationModes.STATIC,
+    hue_default=120,
+    sat_default=160,
+)
+keyboard.extensions.append(rgb_ext)
+
+# --- 3. MULTI-MODE STATE MACHINE ---
+current_mode = 0
+selecting_mode = False
+
+MODES = [
+    {"name": "Essentials", "file": "mode0.bmp"},
+    {"name": "Editing & Navigation", "file": "mode1.bmp"},
+    {"name": "Productivity", "file": "mode2.bmp"},
+    {"name": "Settings", "file": "mode3.bmp"},
+]
+
+def update_screen():
+    while len(splash) > 0:
+        splash.pop()
+    try:
+        with open(MODES[current_mode]["file"], "rb") as f:
+            bitmap = displayio.OnDiskBitmap(f)
+            color_converter = displayio.ColorConverter(color_space=displayio.Colorspace.MONO_MSB)
+            tile_grid = displayio.TileGrid(bitmap, pixel_shader=color_converter)
+            splash.append(tile_grid)
+    except Exception:
+        pass
+
+def flash_leds():
+    rgb_ext.set_hsv(0, 0, 255) # Brief white flash on mode selection
+
+def restore_mint_leds():
+    rgb_ext.set_hsv(120, 160, rgb_ext.val_default) # Restores mint green
+
+def encoder_callback(dir):
+    global current_mode, selecting_mode
+    if selecting_mode:
+        current_mode = (current_mode + dir) % len(MODES)
+        print(f"Mode Preview: {MODES[current_mode]['name']}")
+        update_screen()
+        flash_leds()
+    else:
+        if current_mode == 0:
+            keyboard.tap_key(KC.VOLU if dir > 0 else KC.VOLD)
+        elif current_mode == 1:
+            keyboard.tap_key(KC.PGUP if dir > 0 else KC.PGDN)
+        elif current_mode == 2:
+            keyboard.tap_key(KC.LCTL(KC.TAB) if dir > 0 else KC.LCTL(KC.LSFT(KC.TAB)))
+        elif current_mode == 3:
+            keyboard.tap_key(KC.RGB_VAI if dir > 0 else KC.RGB_VAD)
+
+def button_callback(state):
+    global selecting_mode
+    selecting_mode = not selecting_mode
+    if not selecting_mode:
+        keyboard.active_layers[0] = current_mode
+        print(f"Locked Mode: {MODES[current_mode]['name']}")
+        restore_mint_leds()
+    else:
+        flash_leds()
+        update_screen()
+
+encoder_handler.map = (
+    ((encoder_callback, encoder_callback, button_callback),),
+)
+
+
+keyboard.matrix = MatrixScanner(
+    row_pins=(board.D0, board.D1, board.D2),
+    column_pins=(board.D3, board.D4, board.D5),
+    diode_orientation=DIODE_COL2ROW,
+)
+
+# --- 5. KEYMAP LAYERS ---
 keyboard.keymap = [
-    # Mode 0: Essentials
+    # Layer 0: Essentials
     [
-        KC.MPLY,      # Key 1: Play/Pause
-        KC.MNXT,      # Key 2: Next Track
-        KC.MPRV,      # Key 3: Previous Track
-        KC.TO(1),     # Key 4: Switch to Mode 1
+        KC.MUTE, KC.MPLY, KC.MNXT,
+        KC.LCTL(KC.C), KC.LCTL(KC.V), KC.LCTL(KC.Z),
+        KC.RGB_TOG, KC.LCTL(KC.S), KC.LCTL(KC.F),
     ],
-    
-    # Mode 1: Editing & Navigation
+    # Layer 1: Editing
     [
-        KC.LCTRL(KC.C), # Key 1: Copy
-        KC.LCTRL(KC.V), # Key 2: Paste
-        KC.LCTRL(KC.Z), # Key 3: Undo
-        KC.TO(2),       # Key 4: Switch to Mode 2
+        KC.UP, KC.DOWN, KC.BSPC,
+        KC.LEFT, KC.RIGHT, KC.DEL,
+        KC.RGB_TOG, KC.END, KC.ENT,
     ],
-    
-    # Mode 2: Productivity
+    # Layer 2: Web & Productivity
     [
-        KC.LALT(KC.TAB), # Key 1: App Switcher
-        KC.LCTRL(KC.T),  # Key 2: New Tab
-        KC.LCTRL(KC.W),  # Key 3: Close Tab
-        KC.TO(3),        # Key 4: Switch to Mode 3
+        KC.LCTL(KC.T), KC.LCTL(KC.W), KC.LCTL(KC.R),
+        KC.LCTL(KC.PLUS), KC.LCTL(KC.MINUS), KC.LCTL(KC.NO),
+        KC.RGB_TOG, KC.TAB, KC.ESC,
     ],
-    
-    # Mode 3: Settings
+    # Layer 3: Settings
     [
-        KC.LCTRL(KC.LALT(KC.DEL)), # Key 1: Task Manager / Lock
-        KC.NO,                     # Key 2: Reserved
-        KC.NO,                     # Key 3: Reserved
-        KC.TO(0),                  # Key 4: Loop back to Mode 0
+        KC.RGB_HUI, KC.RGB_HUD, KC.RGB_TOG,
+        KC.RGB_VAI, KC.RGB_VAD, KC.NO,
+        KC.RGB_MODE_RAIN, KC.RGB_MODE_PLAIN, KC.NO,
     ],
 ]
 
 if __name__ == '__main__':
+    update_screen()
     keyboard.go()
