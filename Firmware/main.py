@@ -8,7 +8,6 @@ from kmk.keys import KC
 from kmk.modules.encoder import EncoderHandler
 from kmk.extensions.rgb import RGB, AnimationModes
 
-# --- 1. DISPLAY SETUP ---
 displayio.release_displays()
 i2c = busio.I2C(board.D10, board.D9)
 display_bus = displayio.I2CDisplay(i2c, device_address=0x3C)
@@ -20,7 +19,6 @@ display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=WIDTH, height=HE
 splash = displayio.Group()
 display.show(splash)
 
-# --- 2. KEYBOARD & MODULE SETUP ---
 keyboard = KMKKeyboard()
 
 encoder_handler = EncoderHandler()
@@ -41,7 +39,6 @@ rgb_ext = RGB(
 )
 keyboard.extensions.append(rgb_ext)
 
-# --- 3. MULTI-MODE STATE MACHINE ---
 current_mode = 0
 selecting_mode = False
 
@@ -109,7 +106,7 @@ keyboard.matrix = MatrixScanner(
     diode_orientation=DIODE_COL2ROW,
 )
 
-# --- 5. KEYMAP LAYERS ---
+# 5. KEYMAP LAYERS
 keyboard.keymap = [
     # Layer 0: Essentials
     [
@@ -123,7 +120,7 @@ keyboard.keymap = [
         KC.LEFT, KC.RIGHT, KC.DEL,
         KC.RGB_TOG, KC.END, KC.ENT,
     ],
-    # Layer 2: Web & Productivity
+    # Layer 2: Productivity
     [
         KC.LCTL(KC.T), KC.LCTL(KC.W), KC.LCTL(KC.R),
         KC.LCTL(KC.PLUS), KC.LCTL(KC.MINUS), KC.LCTL(KC.NO),
