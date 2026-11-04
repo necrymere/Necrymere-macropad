@@ -7,11 +7,11 @@
 
  ## Features:
 
- -Blank case with an engraving on the backside to leave space for me to decorate the rest however I feel like in the moment.
- -OLED display for showing what mode it is in/silly things that I have yet to think about
- -EC11 Rotary encoder for volume control(and once pressed for changing the modes)
- -9 LEDs, one for each key to let me customise the colour of it based on my vibe(curently my setup is mint green so I programed it that way)
- -9 keys
+ - Blank case with an engraving on the backside to leave space for me to decorate the rest however I feel like in the moment.
+ - OLED display for showing what mode it is in/silly things that I have yet to think about
+ - EC11 Rotary encoder for volume control(and once pressed for changing the modes)
+ - 9 LEDs, one for each key to let me customise the colour of it based on my vibe(curently my setup is mint green so I programed it that way)
+ - 9 keys
  - 4 modes at the moment of writing this(probably will add more and hopefully adjust this count too)
 
  ## CAD Model:
@@ -43,15 +43,15 @@ It has a rotary encoder that controls the volume and mode as stated before, 9 ke
 ## BOM:
 List of part:
 
-Seeed Studio XIAO Microcontroller
-0.91" 128x32 I2C OLED Display (SSD1306)
-EC11 Rotary Encoder with Push Button
-Mechanical Key Switches (x9)
-1U Keycaps (x9)
-Custom PCB
-3D Printed case
-1N4148 Signal Diodes (x10)
-LEDs (x10)
+- Seeed Studio XIAO Microcontroller
+- 0.91" 128x32 I2C OLED Display (SSD1306)
+- EC11 Rotary Encoder with Push Button
+- Mechanical Key Switches (x9)
+- 1U Keycaps (x9)
+- Custom PCB
+- 3D Printed case
+- 1N4148 Signal Diodes (x10)
+- LEDs (x10)
 
 ## Extra stuff:
 I just had a heart attack cause my firmware was from one year ago, all of it but luckly I think I found the right one. Fingers crossed.
