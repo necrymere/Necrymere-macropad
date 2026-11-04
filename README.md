@@ -41,7 +41,7 @@ It uses KMK for everything.
 It has a rotary encoder that controls the volume and mode as stated before, 9 keys with shortcuts depending on the mode and an OLED for showing the current mode which I will have to spice up ASAP.
 
 ## BOM:
-List of part:
+List of parts:
 
 - Seeed Studio XIAO Microcontroller
 - 0.91" 128x32 I2C OLED Display (SSD1306)
