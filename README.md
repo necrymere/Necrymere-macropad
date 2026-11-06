@@ -23,6 +23,7 @@
 
  Made in Tinkercad(which I will hopefully not touch with a 10 meter pole for a while) cause my laptop decided that Fusion360 isn't necesarry and I am demanding too much.
 
+ Link to the Tinkercad model:https://www.tinkercad.com/things/kG7QE5OvPvF-fabulous-blorr-jofo
  ## Schematic:
  This is the schematic which didn't come with too may issues unlike last time I tried(and failed) to build for Hackpad.
 
