@@ -56,7 +56,7 @@ List of parts:
 
 ## Extra stuff:
 I just had a heart attack cause my firmware was from one year ago, all of it but luckly I think I found the right one. Fingers crossed.
-This was really fun(excluding the loosing the firmare at midnight) anyways hope you have a great day/evening/night!
+This was really fun(excluding the loosing the firmare at midnight part) anyways hope you have a great day/evening/night!
 
 
 
